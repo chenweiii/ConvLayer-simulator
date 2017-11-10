@@ -34,9 +34,8 @@ tensor *next_batch(tensor *x, int N)
    return ret;
 }
 
-void trainNetwork(LayerBase *head, tensor *x)
+tensor *trainNetwork(LayerBase *head, tensor *x)
 {
-    /* TODO: Batch Function */
     DataLayer *dat = (DataLayer *) head;
     ConvLayer *conv = (ConvLayer *) dat->lb->nextLayer; 
 
@@ -47,6 +46,10 @@ void trainNetwork(LayerBase *head, tensor *x)
 
         /* Start feedforward */
         dat->lb->feedforward((LayerBase *) dat);
+        conv->lb->input = dat->lb->output;
         conv->lb->feedforward((LayerBase *) conv);
     }
+
+    conv->lb->output->toCpu(conv->lb->output);
+    return conv->lb->output;
 }

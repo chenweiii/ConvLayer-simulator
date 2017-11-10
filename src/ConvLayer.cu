@@ -4,6 +4,10 @@
 static void feedforward(LayerBase *thiz)
 {
     ConvLayer *conv = (ConvLayer *) thiz;
+    /* prepare output on GPU memory */
+    tensor_create(&conv->lb->output, conv->lb->batchSize, conv->lb->outputDim, conv->lb->outputDim, conv->lb->outputChannel);
+    conv->lb->output->mallocDev(conv->lb->output);
+
     /* TODO: feedforward implementation */
     printf("Doing feedforward\n");
 }
@@ -33,10 +37,8 @@ void ConvLayer_init(ConvLayer **thiz, int batchSize, \
     base->outputDim = inputDim - kernelDim + 1;
     base->inputChannel = inputChannel;
     base->outputChannel = kernelAmount;
-    base->input = preLayer->output;
-    /* Allocate memory for output */
-    tensor_create(&base->output, base->batchSize, base->outputDim, base->outputDim, base->outputChannel);
-    /******************************/
+    base->input = NULL;
+    base->output = NULL;
     base->preLayer = preLayer;
     base->nextLayer = NULL;
     base->feedforward = feedforward;
@@ -46,10 +48,6 @@ void ConvLayer_init(ConvLayer **thiz, int batchSize, \
     /* TODO: Initialize Weights and bias */
     ConvLayer_weight_init(*thiz);
     ConvLayer_bias_init(*thiz);
-    /*
-    (*thiz)->weight = NULL;
-    (*thiz)->bias = NULL;
-    */
 }
 
 void ConvLayer_weight_init(ConvLayer *thiz)
@@ -65,11 +63,17 @@ void ConvLayer_weight_init(ConvLayer *thiz)
             }
         }
     }
+    tzr->mallocDev(tzr);
     tzr->toGpu(tzr);
 }
 
 void ConvLayer_bias_init(ConvLayer *thiz)
 {
     tensor_create(&thiz->bias, thiz->kernelAmount, 1, 1, 1);
-    thiz->bias->toGpu(thiz->bias);
+    tensor *tzr = thiz->bias;
+    for (int i = 0; i < tzr->D0; i++) {
+        tzr->set(tzr, i, 0, 0, 0, 100);
+    }
+    tzr->mallocDev(tzr);
+    tzr->toGpu(tzr);
 }
