@@ -29,7 +29,7 @@ tensor *next_batch(tensor *x, int N)
    tensor *ret = NULL;
    tensor_create(&ret, _BATCH_SIZE, x->D1, x->D2, x->D3);
 
-   memcpy(ret->hostData, x->hostData + N * area * _BATCH_SIZE, area * _BATCH_SIZE);
+   memcpy(ret->hostData, x->hostData + N * area * _BATCH_SIZE * sizeof(conv_unit_t), area * _BATCH_SIZE * sizeof(conv_unit_t));
 
    return ret;
 }
