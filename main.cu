@@ -37,19 +37,20 @@ int main(int argc, char *argv[])
     LayerBase *head = buildNetwork();
     tensor *result = trainNetwork(head, test);
 
+    IplImage *output = cvCreateImage(cvSize(result->D1, result->D2), IPL_DEPTH_8U,  result->D3);
     for (int i = 0; i < 1; i++) {
         for (int j = 0; j < result->D1; j++) {
             for (int k = 0; k < result->D2; k++) {
-                uchar *ptr = (uchar *) img->imageData + j * img->widthStep;
+                uchar *ptr = (uchar *) output->imageData + j * output->widthStep;
                 for (int w = 0; w < result->D3; w++) {
-                    ptr[w] = (int) result->get(result, i, j, k, w);
+                    ptr[w] = (uchar) ((int) result->get(result, i, j, k, w));
                 }
-                ptr += img->nChannels;
+                ptr += output->nChannels;
             }
         }
     }
 
-    cvSaveImage("./output.jpg", img, NULL);
+    cvSaveImage("./output.jpg", output, NULL);
 
     
 

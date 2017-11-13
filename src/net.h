@@ -7,7 +7,7 @@
 #define _BATCH_SIZE 1
 #define _INPUT_DIM 29
 #define _IMAGE_CHANNEL 3
-#define _CONV_FILTER_NUM 32
+#define _CONV_FILTER_NUM 1
 #define _CONV_FILTER_DIM 3
 
 LayerBase *buildNetwork();
